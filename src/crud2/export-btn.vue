@@ -15,8 +15,8 @@
 </template>
 
 <script>
-import { export_json_to_excel } from "./utils/export2excel";
-import { isArray, isFunction, isEmpty, currentDate } from "./utils";
+import { export_json_to_excel } from "../utils/export2excel";
+import { isArray, isFunction, isEmpty, currentDate } from "../utils";
 
 export default {
 	props: {
@@ -30,7 +30,7 @@ export default {
 			default: "xlsx",
 		},
 		header: Array,
-		fields: Array,
+		columns: Array,
 		data: [Function, Array],
 		maxExportLimit: Number, // 最大导出条数，不传或者小于等于0为不限制
 		size: {
@@ -44,6 +44,7 @@ export default {
 		circle: Boolean,
 		icon: String,
 	},
+	inject: ["crud"],
 
 	data() {
 		return {
@@ -53,10 +54,6 @@ export default {
 
 	methods: {
 		async toExport() {
-			if (!this.$crud) {
-				return console.error("未获取到 $crud。请注入或者刷新页面");
-			}
-
 			// 加载
 			this.loading = true;
 
@@ -64,14 +61,14 @@ export default {
 			const { app, ctx } = this.$crud;
 
 			// 表格列
-			const columns = app
-				.getData("table.columns")
-				.filter((e) => !["selection", "expand", "index"].includes(e.type));
+			const columns = this.columns.filter(
+				(e) =>
+					!["selection", "expand", "index"].includes(e.type) &&
+					!(e.filterExport || e["filter-export"])
+			);
 
 			// 字段
-			const fields = isEmpty(this.fields)
-				? columns.filter((e) => !(e.filterExport || e["filter-export"])).map((e) => e.prop)
-				: this.fields;
+			const fields = columns.map((e) => e.prop).filter(Boolean);
 
 			// 表头
 			let header = await this.getHeader(columns, fields);
@@ -108,19 +105,18 @@ export default {
 			);
 		},
 
-		async getData() {
+		getData() {
 			if (isFunction(this.data)) {
-				return await this.data();
+				return this.data();
 			} else {
 				if (this.data) {
 					return this.data;
 				} else {
-					const { getData, paramsReplace } = this.$crud.app;
-					const params = paramsReplace(getData("params"));
+					const { service, params, paramsReplace } = this.crud;
 
-					return getData("service")
+					return service
 						.page({
-							...params,
+							...paramsReplace(params),
 							maxExportLimit: this.maxExportLimit,
 							isExport: true,
 						})

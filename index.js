@@ -1,2 +1,6 @@
-import ClCrudExport from './src/cl-crud-export.vue';
-export default ClCrudExport;
+import ExportBtn from "./src/crud/export-btn.vue";
+import ExportBtn2 from "./src/crud2/export-btn.vue";
+
+export default ExportBtn;
+
+export { ExportBtn, ExportBtn2 };

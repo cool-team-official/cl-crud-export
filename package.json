@@ -1,27 +1,27 @@
 {
-    "name": "cl-crud-export",
-    "version": "0.1.5",
-    "description": "cool-admin: cl-crud-export",
-    "main": "index.js",
-    "author": "icssoa",
-    "license": "ISC",
-    "keywords": [
-        "crud",
-        "admin",
-        "vue",
-        "export",
-        "excel",
-        "element-ui"
-    ],
-    "homepage": "https://github.com/icssoa/cl-crud-export",
-    "files": [
-        "dist",
-        "src",
-        "webpack.config.js"
-    ],
-    "dependencies": {
-        "file-saver": "^2.0.2",
-        "xlsx": "^0.15.6"
-    },
-    "sideEffects": false
+	"name": "cl-crud-export",
+	"version": "0.1.7",
+	"description": "cool-admin: cl-crud-export",
+	"main": "index.js",
+	"author": "icssoa",
+	"license": "ISC",
+	"keywords": [
+		"crud",
+		"admin",
+		"vue",
+		"export",
+		"excel",
+		"element-ui"
+	],
+	"homepage": "https://github.com/icssoa/cl-crud-export",
+	"files": [
+		"dist",
+		"src",
+		"webpack.config.js"
+	],
+	"dependencies": {
+		"file-saver": "^2.0.2",
+		"xlsx": "^0.15.6"
+	},
+	"sideEffects": false
 }

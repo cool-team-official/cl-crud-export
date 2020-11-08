@@ -15,8 +15,8 @@
 </template>
 
 <script>
-import { export_json_to_excel } from "./utils/export2excel";
-import { isArray, isFunction, isEmpty, currentDate } from "./utils";
+import { export_json_to_excel } from "../utils/export2excel";
+import { isArray, isFunction, isEmpty, currentDate } from "../utils";
 
 export default {
 	props: {
@@ -30,7 +30,7 @@ export default {
 			default: "xlsx",
 		},
 		header: Array,
-		columns: Array,
+		fields: Array,
 		data: [Function, Array],
 		maxExportLimit: Number, // 最大导出条数，不传或者小于等于0为不限制
 		size: {
@@ -44,7 +44,6 @@ export default {
 		circle: Boolean,
 		icon: String,
 	},
-	inject: ["crud"],
 
 	data() {
 		return {
@@ -54,6 +53,10 @@ export default {
 
 	methods: {
 		async toExport() {
+			if (!this.$crud) {
+				return console.error("未获取到 $crud。请注入或者刷新页面");
+			}
+
 			// 加载
 			this.loading = true;
 
@@ -61,14 +64,14 @@ export default {
 			const { app, ctx } = this.$crud;
 
 			// 表格列
-			const columns = this.columns.filter(
-				(e) =>
-					!["selection", "expand", "index"].includes(e.type) &&
-					!(e.filterExport || e["filter-export"])
-			);
+			const columns = app
+				.getData("table.columns")
+				.filter((e) => !["selection", "expand", "index"].includes(e.type));
 
 			// 字段
-			const fields = columns.map((e) => e.prop).filter(Boolean);
+			const fields = isEmpty(this.fields)
+				? columns.filter((e) => !(e.filterExport || e["filter-export"])).map((e) => e.prop)
+				: this.fields;
 
 			// 表头
 			let header = await this.getHeader(columns, fields);
@@ -105,15 +108,19 @@ export default {
 			);
 		},
 
-		getData() {
+		async getData() {
 			if (isFunction(this.data)) {
-				return this.data();
+				return await this.data();
 			} else {
 				if (this.data) {
 					return this.data;
 				} else {
-					return this.crud
-						.refresh({
+					const { getData, paramsReplace } = this.$crud.app;
+					const params = paramsReplace(getData("params"));
+
+					return getData("service")
+						.page({
+							...params,
 							maxExportLimit: this.maxExportLimit,
 							isExport: true,
 						})
